@@ -16,80 +16,37 @@
 
         <h5><strong>Noise</strong></h5>
 
-        <div>
-        <input type="radio" id="silent" name="noise" value="silent"
-                checked>
-        <label for="silent">silent</label>
-        </div>
+        <select name="noise" class="form-control">
+            <option value="silent">Silent</option>
+            <option value="ambient">Ambient</option>
+            <option value="loud">Loud</option>
+        </select>
 
-        <div>
-        <input type="radio" id="ambient" name="noise" value="ambient">
-        <label for="ambient">ambient</label>
-        </div>
-
-        <div>
-        <input type="radio" id="loud" name="noise" value="loud">
-        <label for="loud">loud</label>
-        </div>
-        
-            
         <h5><strong>Collaboration style</strong></h5>
 
-        <div>
-        <input type="radio" id="moral" name="collab" value="moral"
-                checked>
-        <label for="moral">moral support</label>
-        </div>
-
-        <div>
-        <input type="radio" id="discussion" name="collab" value="discussion">
-        <label for="discussion">discussion</label>
-        </div>
+        <select name="collab" class="form-control">
+            <option value="moral">Moral support</option>
+            <option value="discussion">Discussion</option>
+        </select>
 
         <h5><strong>Learning style</strong></h5>
 
-        <div>
-        <input type="radio" id="audio" name="learn_style" value="audio"
-                checked>
-        <label for="audio">audio</label>
-        </div>
-
-        <div>
-        <input type="radio" id="cafe" name="learn_style" value="cafe">
-        <label for="cafe">cafe</label>
-        </div>
-
-        <div>
-        <input type="radio" id="kinesthetic" name="learn_style" value="kinesthetic">
-        <label for="kinesthetic">kinesthetic</label>
-        </div>
+        <select name="learn_style" class="form-control">
+            <option value="audio">Audio</option>
+            <option value="cafe">Cafe</option>
+            <option value="kinesthetic">Kinesthetic</option>
+        </select>
 
         <h5><strong>Environment</strong></h5>
 
-        <div>
-        <input type="radio" id="library" name="env" value="library"
-                checked>
-        <label for="library">library</label>
-        </div>
+        <select name="env" class="form-control">
+            <option value="library">Library</option>
+            <option value="visual">Visual</option>
+            <option value="room">Study room</option>
+            <option value="common">Common open area</option>
+        </select>
 
-        <div>
-        <input type="radio" id="visual" name="env" value="visual">
-        <label for="visual">visual</label>
-        </div>
-
-        <div>
-        <input type="radio" id="room" name="env" value="room">
-        <label for="room">study room</label>
-        </div>
-
-        <div>
-        <input type="radio" id="common" name="env" value="common">
-        <label for="common">common open area</label>
-        </div>
-
-
-
-        <div class="control-group">
+        <div class="control-group" style="margin-top:20px">
         <input type="submit" value="Submit" class="btn btn-primary btn-lg btn-block"></div>
     </form>
 </div>
