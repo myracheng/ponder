@@ -1,19 +1,45 @@
-<form action="/login" method="POST">
-<div class="login">
-<div class="login-screen">
-<div class="app-title">
-<h1>Login</h1>
-</div>
-<div class="login-form">
-<div class="control-group">
-				<input type="text" class="login-field" value="" placeholder="username" name="username">
-<label class="login-field-icon fui-user" for="login-name"></label></div>
-<div class="control-group">
-				<input type="password" class="login-field" value="" placeholder="password" name="password">
-<label class="login-field-icon fui-lock" for="login-pass"></label></div>
-<input type="submit" value="Sign In" class="btn btn-primary btn-large btn-block">
+{% extends 'base-out.html' %}
 
-</div>
-</div>
-</div>
-</form>
+<head>
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='signin.css') }}" rel="stylesheet" type="text/css">
+</head>
+
+{% block content %}
+    <div class="container">
+        <h1>Login</h1>
+
+        <form action="/login" method="POST" class="form-signin">
+            <h5><strong>Username</strong></h5>
+            <input type="text" class="form-control login-field" value="" placeholder="username" name="username">
+            <h5><strong>Password</strong></h5>
+            <input type="password" class="form-control login-field" value="" placeholder="password" name="password">
+            <div class="text-center">
+                <div class="checkbox mb-3">
+                    <label>
+                      <input type="checkbox" value="remember-me"> Remember me
+                    </label>
+                </div>
+            </div>
+
+            <input type="submit" value="Sign In" class="btn btn-primary btn-lg btn-block">
+
+        </form>
+    </div>
+{% endblock %}

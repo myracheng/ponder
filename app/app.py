@@ -1,5 +1,6 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_bootstrap import Bootstrap
 from src.auth import auth_user, register_user
 from src.user import PonderUser
 
@@ -94,7 +95,6 @@ def swipe():
         pass  # do swipe right
     elif request.form['swipe_value'] == '</3':
         message = 'YOU SWIPED LEFT D:'
-        
         pass  # do swipe left
     else:
         message = "rip"
@@ -149,5 +149,6 @@ def chat():
 if __name__ == '__main__':
     app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
     app.debug = True
+    bootstrap = Bootstrap(app)
     socketio.init_app(app)
     socketio.run(app, debug=True, host='127.0.0.1', port=8080)
