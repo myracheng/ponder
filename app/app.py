@@ -2,7 +2,7 @@ from flask import Flask, flash, redirect, render_template, request, session, abo
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from src.auth import auth_user, register_user
 from src.user import PonderUser
-
+from src.db import update_nos, update_yes, get_next_suggestion, create_profile
 import os
 import random
 
@@ -84,27 +84,51 @@ def logout():
 
 @app.route('/swipe_page')
 def swipe_page():
-    return render_template('swipe.html', user=PonderUser('user', 'Example', f'User{random.randint(1, 999)}'), message='')
+    username = str(session.get('username'))
+    return render_template('swipe.html', user=get_next_suggestion(username), message='')
 
 
 @app.route('/swipe', methods=['POST'])
 def swipe():
+    # TODO connect database here
+    username = str(session.get('username'))
     if request.form['swipe_value'] == '<3':
         message = 'YOU SWIPED RIGHT :D'
+        # new_yes = 
+        update_yes(username, new_yes)
         pass  # do swipe right
     elif request.form['swipe_value'] == '</3':
         message = 'YOU SWIPED LEFT D:'
-        
+        # new_no = 
+        update_nos(username, new_no)
         pass  # do swipe left
     else:
         message = "rip"
         pass  # process error
-    return render_template('swipe.html', user=PonderUser('user', 'Example', f'User{random.randint(1, 999)}'), message=message)
+    return render_template('swipe.html', user=get_next_suggestion(username), message=message)
 
 
 @app.route('/profile_page')
 def profile_page():
     return render_template('profile.html')
+
+@app.route('/profile', methods=['POST'])
+def profile():
+    username = session.get('username')
+
+    noise = request.form['noise']
+    collab = request.form['collab']
+    learn_style = request.form['learn_style']
+    classes = request.form['classes'] #todo
+    major = request.form['major']
+    env = request.form['env']
+
+    user = create_profile(username, noise, collab, learn_style, classes, major, env)
+    if user:
+        flash('Profile updated.')
+    else:
+        flash('wrong password!')
+    return hello_world()
 
 
 @socketio.on('joined', namespace='/chat')

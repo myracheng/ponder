@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 import json
 
-def create_tables(db):
-    conn = sqlite3.connect(db)
+def create_tables():
+    conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
 
     c.execute('''CREATE TABLE IF NOT EXISTS auth_table ('''
@@ -24,56 +24,101 @@ def create_tables(db):
               '''major message_text, '''
               '''env integer);''')
 
-    c.execute('''CREATE TABLE IF NOT EXISTS matches_table ('''
+    c.execute('''CREATE TABLE IF NOT EXISTS status_table ('''
               '''username message_text, '''
               '''suggestions message_text,'''
               '''swipe_to message_text, ''' #people they swiped on
               '''swiped_from message_text, ''' #people who swiped on them
               '''nos message_text,''' #people who are rejected
-              '''matches message_text);''')
+              '''pairs message_text);''')
 
     conn.commit()
     conn.close()
 
 #find pairwise groups (for get_groups)
-def get_matches(db):
-    df = pd.read_sql_query("SELECT username, swipe_to, swiped_from from matches_table", con)
-    all_matches = []
+def get_pairs():
+    con = sqlite3.connect('ponder.db')
+    c = con.cursor()
+    df = pd.read_sql_query("SELECT username, swipe_to, swiped_from from status_table", con)
+    all_pairs = []
     for ind, row in df.iterrows():
-        matches = []
-        for user in json.load(row['swipe_to']):
-            if user in json.load(row['swiped_from']):
-                matches.append(user)
-        all_matches.append(json.dump(matches))
+        pairs = []
+        for user in json.loads(row['swipe_to']):
+            if user in json.loads(row['swiped_from']):
+                pairs.append(user)
+        all_pairs.append(json.dumps(pairs))
 
-    c.execute("REPLACE into matches_table (matches) VALUES (json.dump(all_matches))")    
+    c.execute("REPLACE into status_table (pairs) VALUES (json.dumps(all_pairs))")    
 
 #get chatrooms
-def get_groups(db):
-    conn = sqlite3.connect(db)
-    c = conn.cursor()
-    df = pd.read_sql_query('''SELECT username, matches FROM matches_table;''', conn)
+def get_groups():
+    conn = sqlite3.connect('ponder.db')
+    df = pd.read_sql_query('''SELECT username, pairs FROM status_table;''', conn)
     study_groups = make_groups_from_df(df)
     return study_groups
         
-# def update_nos(): TODO
+def update_nos(user, new_no):
+    conn = sqlite3.connect('ponder.db')
+    c = conn.cursor()
+    nos = json.loads(c.execute("SELECT nos from status_table WHERE username = user"))
+    nos.append(new_no)
+    c.execute("REPLACE into status_table (nos) VALUES (json.dumps(nos)) WHERE username = user")    
 
-def get_suggestions(db, user):
-    con = sqlite3.connect(db)
+def update_yes(user, new_yes):
+    conn = sqlite3.connect('ponder.db')
+    c = conn.cursor()
+    yes = json.loads(c.execute("SELECT swipe_to from status_table WHERE username = user"))
+    yes.append(new_yes)
+    c.execute("REPLACE into status_table (swipe_to) VALUES (json.dumps(yes)) WHERE username = user")    
+
+# def get_suggestions_as_array(user):
+#     con = sqlite3.connect('ponder.db')
+#     c = con.cursor()
+#     get_suggestions(user) # make sure it's updated
+#     return json.loads(c.execute("SELECT suggestions from status_table WHERE username = user"))
+
+def get_suggestions(username):
+    con = sqlite3.connect('ponder.db')
+    c = con.cursor()
     df = pd.read_sql_query("SELECT * from data_table", con)
-    nos = c.execute("SELECT nos from matches_table WHERE username = user", con)
-    nos = json.load(nos)
+    try: 
+        nos = json.loads(c.execute("SELECT nos from status_table WHERE username = (?)",str(username)).fetchone())
+    except:
+        nos = []
+    try:
+        swipe_to = json.loads(c.execute("SELECT swipe_to from status_table WHERE username = username").fetchone())
+    except:
+        swipe_to = []
+
     suggestions = get_suggestions_from_df(df, username)
 
-    # filter out people already rejected
+    # filter out people already rejected or accepted
     for name in suggestions:
-        if name in nos:
+        if name in nos or name in swipe_to:
             suggestions.delete(name)
 
-    c.execute("REPLACE into matches_table (suggestions) VALUES (json.dump(suggestions)) WHERE username = user")    
+    c.execute("REPLACE into status_table (suggestions) VALUES (json.dumps(suggestions)) WHERE username = [user]")    
 
-def create_user(db, username, password, firstname, lastname, email):
-    conn = sqlite3.connect(db)
+#return PonderUser
+def get_next_suggestion(username):
+    get_suggestions(username)
+    con = sqlite3.connect('ponder.db')
+    c = con.cursor()
+    suggs = json.loads(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
+    return suggs[0]
+
+def get_user(username):
+    conn = sqlite3.connect('ponder.db')
+    c = conn.cursor()
+    get_suggestions(user) # make sure it's updated
+    suggested = json.loads(c.execute('''SELECT * FROM auth_table WHERE username=?;''',
+                     (username, )).fetchone())[0]
+    conn.commit()
+    conn.close()
+    return PonderUser(suggested_user[0], suggested_user[2], suggested_user[3])
+
+def create_user(username, password, firstname, lastname, email):
+    conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
     user = c.execute('''SELECT * FROM auth_table WHERE username=?;''',
                      (username,)).fetchone()
@@ -87,9 +132,16 @@ def create_user(db, username, password, firstname, lastname, email):
         return True
     return False
 
+def create_profile(username, noise, collab, learn_style, classes, major, env):
+    conn = sqlite3.connect('ponder.db')
+    c = conn.cursor()
+    c.execute('''REPLACE into auth_table VALUES (?,?,?,?,?,?,?);''',
+                (username, noise, collab, learn_style, classes, major, env))
+    conn.commit()
+    conn.close()
 
-def login_user(db, username, password):
-    conn = sqlite3.connect(db)
+def login_user(username, password):
+    conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
     user = c.execute('''SELECT * FROM auth_table WHERE username=? AND password=?;''',
                      (username, password)).fetchone()
@@ -101,7 +153,8 @@ def login_user(db, username, password):
     return False
 
 def get_suggestions_from_df(df, username):
-    matches = {}
+    suggestions = {}
+    row1 = df[df['username'] == username]
     if row1['noise'] == 0:
         second_df = df[df['noise'] == 0]
     else:
@@ -116,21 +169,21 @@ def get_suggestions_from_df(df, username):
                 soft_dot1.append(row1['classes'][course])
                 soft_dot2.append(row1['classes'][course])
             preferences = num_shared_classes + np.dot(soft_dot1, soft_dot2)
-            matches[ind2] = preferences
-    return [i[0] for i in sorted(matches.items(),key=lambda item: item[1],reverse=True)]
+            suggestions[ind2] = preferences
+    return [i[0] for i in sorted(suggestions.items(),key=lambda item: item[1],reverse=True)]
 
-def make_groups_from_df(matches_df):
+def make_groups_from_df(pairs_df):
     sgroups3 = []
     sgroups4 = []
     seen = set()
-    output_df = pd.DataFrame({'names': matches_df['name']})
-    for ind, row in matches_df.iterrows():
+    output_df = pd.DataFrame({'names': pairs_df['name']})
+    for ind, row in pairs_df.iterrows():
         for student in row['matched']: #all possible pairs... find if 3rd persn
-            possible_thirds = set(matches_df[matches_df['name'] == student]['matched'].values[0]).intersection(row['matched'])
+            possible_thirds = set(pairs_df[pairs_df['name'] == student]['matched'].values[0]).intersection(row['matched'])
             for name in possible_thirds:
                 sgroup = frozenset([row['name'], student, name])
                 if sgroup not in seen and not seen.add(sgroup):
-                    possible_fourths = set.intersection(set((matches_df[matches_df['name'] == name]['matched'].values[0])), set(matches_df[matches_df['name'] == student]['matched'].values[0]), set(row['matched']))
+                    possible_fourths = set.intersection(set((pairs_df[pairs_df['name'] == name]['matched'].values[0])), set(pairs_df[pairs_df['name'] == student]['matched'].values[0]), set(row['matched']))
                     if bool(possible_fourths):
                         for name2 in possible_fourths:
                             sgroup4 = frozenset([row['name'], student, name, name2])

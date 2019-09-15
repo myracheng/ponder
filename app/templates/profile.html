@@ -5,7 +5,101 @@
     <title>Title</title>
 </head>
 <body>
-    <p>PLACEHOLDER</p>
+
+    <form action="/profile" method="POST">
+        <div class="control-group">
+            <input type="text" class="login-field" value="" placeholder="username" name="username"></div>
+        <div class="control-group">
+                                <p>Noise:</p>
+
+                <div>
+                <input type="radio" id="silent" name="noise" value="silent"
+                        checked>
+                <label for="silent">silent</label>
+                </div>
+
+                <div>
+                <input type="radio" id="ambient" name="noise" value="ambient">
+                <label for="ambient">ambient</label>
+                </div>
+
+                <div>
+                <input type="radio" id="loud" name="noise" value="loud">
+                <label for="loud">loud</label>
+                </div>
+        
+        </div>
+
+        <div class="control-group">
+                <p>Collab:</p>
+
+                <div>
+                <input type="radio" id="moral" name="collab" value="moral"
+                        checked>
+                <label for="moral">moral support</label>
+                </div>
+
+                <div>
+                <input type="radio" id="discussion" name="collab" value="discussion">
+                <label for="discussion">discussion</label>
+                </div>
+        </div>
+
+        <div class="control-group">
+                <p>Learning style:</p>
+
+                <div>
+                <input type="radio" id="audio" name="learn_style" value="audio"
+                        checked>
+                <label for="audio">audio</label>
+                </div>
+
+                <div>
+                <input type="radio" id="visual" name="learn_style" value="visual">
+                <label for="visual">visual</label>
+                </div>
+
+                <div>
+                        <input type="radio" id="kinesthetic" name="learn_style" value="kinesthetic">
+                        <label for="kinesthetic">kinesthetic</label>
+                        </div>
+        </div>
+
+        <div class="control-group">
+                <p>Learning style:</p>
+
+                <div>
+                <input type="radio" id="audio" name="learn_style" value="audio"
+                        checked>
+                <label for="audio">audio</label>
+                </div>
+
+                <div>
+                <input type="radio" id="visual" name="learn_style" value="visual">
+                <label for="visual">visual</label>
+                </div>
+
+                <div>
+                        <input type="radio" id="kinesthetic" name="learn_style" value="kinesthetic">
+                        <label for="kinesthetic">kinesthetic</label>
+                        </div>
+        </div>
+
+
+            <div class="control-group">
+            <input type="text" class="login-field" value="" placeholder="major" name="major"></div>
+        <div class="control-group">
+            <input type="text" class="login-field" value="" placeholder="last name" name="lastname"></div>
+            <div class="control-group">
+            <input type="text" class="login-field" value="" placeholder="email" name="email"></div>
+        <div class="control-group">
+        <input type="submit" value="Register" class="btn btn-primary btn-large btn-block"></div>
+        </form>
+    
+
     {% include 'footer.html' %}
 </body>
 </html>
+
+
+username, noise, collab, learn_style, classes, major, env
