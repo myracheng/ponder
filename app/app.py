@@ -100,11 +100,8 @@ def swipe():
         pass  # do swipe right
     elif request.form['swipe_value'] == '</3':
         message = 'YOU SWIPED LEFT D:'
-<<<<<<< HEAD
         # new_no = 
         update_nos(username, new_no)
-=======
->>>>>>> 9c3ca6d733dd38ddd97aa3e6677513097ba2f514
         pass  # do swipe left
     else:
         message = "rip"
