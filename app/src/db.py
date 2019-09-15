@@ -146,11 +146,17 @@ def get_next_suggestion(username):
     suggs = json.loads(c.execute(f'''SELECT suggestions from status_table WHERE username='{username}';''').fetchone()[0])[0]
     print(type(suggs))
     print('AAAAAAAAAAAAAA', suggs)
+<<<<<<< HEAD
 
     print(f'''SELECT * FROM auth_table WHERE username='{suggs}';''')
 
     user = c.execute(f'''SELECT * FROM auth_table WHERE username='{suggs}';''').fetchone()
 
+=======
+    sql_query = f'''SELECT * from status_table WHERE username='{suggs}';'''
+    user = pd.read_sql_query(sql_query, con)
+     
+>>>>>>> 1b82ac9a56eac86f30fb1f7a9e78e9d4ad99ad54
     return PonderUser(user[0], user[2], user[3])
 
 
@@ -233,7 +239,10 @@ def get_suggestions_from_df(df, username):
 
 
 def make_groups_from_df(pairs_df):
-    try:
+    # print(pairs_df)
+    # return [['a', 'b', 'c']]
+    # return [list(x) for x in pairs_df[0]['pairs']]
+    # try:
         sgroups3 = []
         sgroups4 = []
         seen = set()
@@ -243,16 +252,21 @@ def make_groups_from_df(pairs_df):
                 possible_thirds = set(pairs_df[pairs_df['username'] == student]['pairs'].values[0]).intersection(row['pairs'])
                 for name in possible_thirds:
                     sgroup = frozenset([row['username'], student, name])
-                    if sgroup not in seen and not seen.add(sgroup):
-                        possible_fourths = set.intersection(set((pairs_df[pairs_df['username'] == name]['pairs'].values[0])), set(pairs_df[pairs_df['username'] == student]['pairs'].values[0]), set(row['pairs']))
-                        if bool(possible_fourths):
-                            for name2 in possible_fourths:
-                                sgroup4 = frozenset([row['username'], student, name, name2])
-                                if sgroup4 not in seen and not seen.add(sgroup4):
-                                    sgroups4.append(sgroup4)
-                        else:
-                            sgroups3.append(sgroup)
-        sgroups3.extend(sgroups4)
+                    # if sgroup not in seen and not seen.add(sgroup):
+                    #     possible_fourths = set.intersection(set((pairs_df[pairs_df['username'] == name]['pairs'].values[0])), set(pairs_df[pairs_df['username'] == student]['pairs'].values[0]), set(row['pairs']))
+                    #     if bool(possible_fourths):
+                    #         for name2 in possible_fourths:
+                    #             sgroup4 = frozenset([row['username'], student, name, name2])
+                    #             if sgroup4 not in seen and not seen.add(sgroup4):
+                    #                 sgroups4.append(sgroup4)
+                    #     else:
+                    sgroups3.append(sgroup)
+        # sgroups3.extend(sgroups4)
         return [list(x) for x in sgroups3]
+<<<<<<< HEAD
     except Error:
         return []
+=======
+    # except Error:
+    #     return []
+>>>>>>> 1b82ac9a56eac86f30fb1f7a9e78e9d4ad99ad54
