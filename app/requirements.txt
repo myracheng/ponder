@@ -12,4 +12,4 @@ python-socketio==1.9.0
 six==1.11.0
 Werkzeug==0.14.1
 WTForms==2.2.1
-flask-bootstrap=3.3.7
+flask-bootstrap==3.3.7
