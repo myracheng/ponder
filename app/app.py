@@ -1,7 +1,10 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort
-from flask_socketio import SocketIO
-from src import auth_user, register_user
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from src.auth import auth_user, register_user
+from src.user import PonderUser
+
 import os
+import random
 
 socketio = SocketIO()
 
@@ -13,7 +16,7 @@ def hello_world():
     if not session.get('logged_in'):
         return render_template('landing.html')
     else:
-        return render_template('home.html')
+        return render_template('home.html', firstname=session['firstname'], lastname=session['lastname'], username=session['username'])
 
 
 @app.route('/login_page')
@@ -36,6 +39,7 @@ def login():
         flash('Logged in!')
         session['username'] = user.username
         session['firstname'] = user.firstname
+        session['lastname'] = user.lastname
         session['logged_in'] = True
         session['room'] = 'tmp'
     else:
@@ -65,7 +69,30 @@ def logout():
     session['logged_in'] = False
     return hello_world()
 
-from flask_socketio import emit, join_room, leave_room
+
+@app.route('/swipe_page')
+def swipe_page():
+    return render_template('swipe.html', user=PonderUser('user', 'Example', f'User{random.randint(1, 999)}'), message='')
+
+
+@app.route('/swipe', methods=['POST'])
+def swipe():
+    if request.form['swipe_value'] == '<3':
+        message = 'YOU SWIPED RIGHT :D'
+        pass  # do swipe right
+    elif request.form['swipe_value'] == '</3':
+        message = 'YOU SWIPED LEFT D:'
+        pass  # do swipe left
+    else:
+        message = "rip"
+        pass  # process error
+    return render_template('swipe.html', user=PonderUser('user', 'Example', f'User{random.randint(1, 999)}'), message=message)
+
+
+@app.route('/profile_page')
+def profile_page():
+    return render_template('profile.html')
+
 
 @socketio.on('joined', namespace='/chat')
 def joined(message):
@@ -110,5 +137,4 @@ if __name__ == '__main__':
     app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
     app.debug = True
     socketio.init_app(app)
-    socketio.run(app)
-    # app.run(debug=True, host='127.0.0.1', port=8080)
+    socketio.run(app, debug=True, host='127.0.0.1', port=8080)
