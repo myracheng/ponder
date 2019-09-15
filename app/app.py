@@ -119,7 +119,7 @@ def profile():
     noise = request.form['noise']
     collab = request.form['collab']
     learn_style = request.form['learn_style']
-    classes = request.form['classes'] #todo
+    classes = request.form['class'] #todo
     major = request.form['major']
     env = request.form['env']
 

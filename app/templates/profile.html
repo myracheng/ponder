@@ -55,8 +55,8 @@
                 </div>
 
                 <div>
-                <input type="radio" id="visual" name="learn_style" value="visual">
-                <label for="visual">visual</label>
+                <input type="radio" id="cafe" name="learn_style" value="cafe">
+                <label for="cafe">cafe</label>
                 </div>
 
                 <div>
@@ -66,32 +66,36 @@
         </div>
 
         <div class="control-group">
-                <p>Learning style:</p>
+                <p>Environment:</p>
 
                 <div>
-                <input type="radio" id="audio" name="learn_style" value="audio"
+                <input type="radio" id="library" name="env" value="library"
                         checked>
-                <label for="audio">audio</label>
+                <label for="library">library</label>
                 </div>
 
                 <div>
-                <input type="radio" id="visual" name="learn_style" value="visual">
+                <input type="radio" id="visual" name="env" value="visual">
                 <label for="visual">visual</label>
                 </div>
 
                 <div>
-                        <input type="radio" id="kinesthetic" name="learn_style" value="kinesthetic">
-                        <label for="kinesthetic">kinesthetic</label>
+                        <input type="radio" id="room" name="env" value="room">
+                        <label for="room">study room</label>
                         </div>
+
+                        <div>
+                                <input type="radio" id="common" name="env" value="common">
+                                <label for="common">common open area</label>
+                                </div>
         </div>
 
 
             <div class="control-group">
             <input type="text" class="login-field" value="" placeholder="major" name="major"></div>
-        <div class="control-group">
-            <input type="text" class="login-field" value="" placeholder="last name" name="lastname"></div>
             <div class="control-group">
-            <input type="text" class="login-field" value="" placeholder="email" name="email"></div>
+                    <input type="text" class="class" value="" placeholder="class" name="class"></div> <!--TODO-->
+    
         <div class="control-group">
         <input type="submit" value="Register" class="btn btn-primary btn-large btn-block"></div>
         </form>
@@ -100,6 +104,3 @@
     {% include 'footer.html' %}
 </body>
 </html>
-
-
-username, noise, collab, learn_style, classes, major, env

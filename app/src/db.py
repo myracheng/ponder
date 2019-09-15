@@ -135,7 +135,7 @@ def create_user(username, password, firstname, lastname, email):
 def create_profile(username, noise, collab, learn_style, classes, major, env):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
-    c.execute('''REPLACE into auth_table VALUES (?,?,?,?,?,?,?);''',
+    c.execute('''REPLACE into data_table VALUES (?,?,?,?,?,?,?);''',
                 (username, noise, collab, learn_style, classes, major, env))
     conn.commit()
     conn.close()
