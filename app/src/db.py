@@ -168,7 +168,7 @@ def create_profile(username, noise, collab, learn_style, classes, major, env):
                 (username, noise, collab, learn_style, classes, major, env))
     print('''FIRST CWD IS ''' + str(os.getcwd()))
     c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?);''',
-            (username, '[1]','[2]','[3]','[4]','[5]'))
+            (username, '[]','[]','[]','[]','[]'))
     conn.commit()
     conn.close()
 
