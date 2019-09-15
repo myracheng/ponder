@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+
 def find_matches(df):
     matches = {}
     for ind, row1 in df.iterrows(): #iterate through users
@@ -28,11 +29,11 @@ def make_groups(matches_df):
     output_df = pd.DataFrame({'names': matches_df['name']})
     for ind, row in matches_df.iterrows():
         for student in row['matched']: #all possible pairs... find if 3rd persn
-            possible_thirds = set(df[df['name'] == student]['matched'].values[0]).intersection(row['matched'])
+            possible_thirds = set(matches_df[matches_df['name'] == student]['matched'].values[0]).intersection(row['matched'])
             for name in possible_thirds:
                 sgroup = frozenset([row['name'], student, name])
                 if sgroup not in seen and not seen.add(sgroup):
-                    possible_fourths = set.intersection(set((df[df['name'] == name]['matched'].values[0])), set(df[df['name'] == student]['matched'].values[0]), set(row['matched']))
+                    possible_fourths = set.intersection(set((matches_df[matches_df['name'] == name]['matched'].values[0])), set(matches_df[matches_df['name'] == student]['matched'].values[0]), set(row['matched']))
                     if bool(possible_fourths):
                         for name2 in possible_fourths:
                             sgroup4 = frozenset([row['name'], student, name, name2])
