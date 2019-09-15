@@ -94,6 +94,7 @@ def swipe():
         pass  # do swipe right
     elif request.form['swipe_value'] == '</3':
         message = 'YOU SWIPED LEFT D:'
+        
         pass  # do swipe left
     else:
         message = "rip"
