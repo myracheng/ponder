@@ -115,14 +115,18 @@ def profile_page():
 
 @app.route('/profile', methods=['POST'])
 def profile():
+    noises = {'silent':0, 'ambient': 1, 'loud': 2}
+    collabs =  {'moral':0, 'discussion': 1}
+    learns = {'audio':1, 'visual':2, 'kinesthetic': 3}
+    envs = {'library': 1, 'visual': 2, 'room': 3, 'common':4}
     username = session.get('username')
 
-    noise = request.form['noise']
-    collab = request.form['collab']
-    learn_style = request.form['learn_style']
+    noise = noises[request.form['noise']]
+    collab = collabs[request.form['collab']]
+    learn_style = learns[request.form['learn_style']]
     classes = request.form['class'] #todo
     major = request.form['major']
-    env = request.form['env']
+    env = envs[request.form['env']]
 
     user = create_profile(username, noise, collab, learn_style, classes, major, env)
     if user:
