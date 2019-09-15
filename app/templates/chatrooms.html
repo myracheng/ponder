@@ -5,9 +5,9 @@
     <h1 style="margin-bottom:40px" >Study Groups</h1>
 
     <form action="/chatrooms" method="POST">
-        <input type="submit" class = "btn btn-light btn-block" style="border-radius:0" name="chatroom" value="Room 1">
-        <input type="submit" class = "btn btn-light btn-block" style="border-radius:0" name="chatroom" value="Room 2">
-        <input type="submit" class = "btn btn-light btn-block" style="border-radius:0" name="chatroom" value="Room 3">
+        {% for s in groups %}
+            <input type="submit" class = "btn btn-light btn-block" style="border-radius:0" name="chatroom" value={{ s }}>
+        {% endfor %}
     </form>
 </div>
 {% endblock %}
