@@ -90,7 +90,7 @@ def update_yes(user, new_yes):
     yeejson = json.dumps(yes)
     sql_query = f'''UPDATE status_table SET swipe_to='{yeejson}' WHERE username='{user}';'''
     c.execute(sql_query)
-    print("after  yes")
+    print("after yes")
     conn.commit()
     conn.close()
 
@@ -100,11 +100,11 @@ def get_suggestions(username):
     c = con.cursor()
     df = pd.read_sql_query('''SELECT * from data_table;''', con)
     # try: 
-    nos = json.loads(c.execute('''SELECT nos from status_table WHERE username = (?);''',str(username)).fetchone()[0])
+    nos = json.loads(c.execute(f'''SELECT nos from status_table WHERE username = '{username}';''').fetchone()[0])
     # except:
         # nos = []
     # try:
-    swipe_to = json.loads(c.execute('''SELECT swipe_to from status_table WHERE username = (?);''',str(username)).fetchone()[0])
+    swipe_to = json.loads(c.execute(f'''SELECT swipe_to from status_table WHERE username='{username}';''').fetchone()[0])
     # except:
         # swipe_to = []
 
