@@ -42,5 +42,5 @@ $ python3 -i debug.py
 ```
 
 ## Examples
-<img src="/app/static/screenshot.png"> 
+<img src="/app/static/screenshot.png" width="500"> 
 
