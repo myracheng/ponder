@@ -19,6 +19,13 @@ def hello_world():
         return render_template('home.html', firstname=session['firstname'], lastname=session['lastname'], username=session['username'])
 
 
+@app.route('/chatrooms', methods=['POST'])
+def chatrooms():
+    room = request.form['chatroom']
+    session['room'] = room
+    return chat()
+
+
 @app.route('/login_page')
 def login_page():
     return render_template('login.html')
