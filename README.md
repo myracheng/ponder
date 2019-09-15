@@ -18,6 +18,11 @@ To start the server
 $ python3 app.py
 ```
 
+To populate the database
+```
+$ python3 -i src/db.py
+>>> create_tables()
+
 Test at:
 ```
 localhost:8080/
