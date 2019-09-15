@@ -4,8 +4,6 @@ from flask_bootstrap import Bootstrap
 from src.auth import auth_user, register_user
 from src.user import PonderUser
 from src.db import update_nos, update_yes, get_next_suggestion, create_profile, get_groups
-import os
-import random
 
 socketio = SocketIO()
 
@@ -22,8 +20,11 @@ def hello_world():
 
 @app.route('/chatrooms_page')
 def chatrooms_page():
-    groups = get_groups();
-    groups = [', '.join(l) for l in groups]
+    try:
+        groups = get_groups();
+        groups = [', '.join(l) for l in groups]
+    except IndexError:
+        groups = ['Global Chat']
     return render_template('chatrooms.html', groups=groups)
 
 
@@ -55,7 +56,7 @@ def login():
         session['firstname'] = user.firstname
         session['lastname'] = user.lastname
         session['logged_in'] = True
-        session['room'] = 'tmp'
+        session['room'] = 'Global Chat'
         return hello_world()
     else:
         flash('Wrong password!')
@@ -94,7 +95,6 @@ def swipe_page():
 
 @app.route('/swipe', methods=['POST'])
 def swipe():
-    # TODO connect database here
     username = str(session.get('username'))
     if request.form['swipe_value'] == '<3':
         message = 'YOU SWIPED RIGHT :D'
@@ -148,7 +148,7 @@ def text(message):
     """Sent by a client when the user entered a new message.
     The message is sent to all people in the room."""
     room = session.get('room')
-    emit('message', {'msg': session.get('firstname') + ':' + message['msg']}, room=room)
+    emit('message', {'msg': session.get('firstname') + ': ' + message['msg']}, room=room)
 
 
 @socketio.on('left', namespace='/chat')
@@ -171,6 +171,16 @@ def chat():
     # if name == '' or room == '':
     #     return redirect(url_for('.index'))
     return render_template('chat.html', name=name, room=room)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return hello_world()
+
+
+@app.errorhandler(405)
+def method_not_allowed(e):
+    return hello_world()
 
 
 if __name__ == '__main__':
