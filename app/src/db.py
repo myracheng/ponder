@@ -3,7 +3,13 @@ import sqlite3
 import pandas as pd
 import numpy as np
 import json
-from .user import PonderUser
+
+
+class PonderUser:
+    def __init__(self, username, firstname, lastname):
+        self.username = username
+        self.firstname = firstname
+        self.lastname = lastname
 
 
 def create_tables():
@@ -38,6 +44,7 @@ def create_tables():
     conn.commit()
     conn.close()
 
+
 #find pairwise groups (for get_groups)
 def get_pairs():
     con = sqlite3.connect('ponder.db')
@@ -53,13 +60,15 @@ def get_pairs():
 
     c.execute("REPLACE into status_table (pairs) VALUES (?)", json.dumps(all_pairs))    
 
+
 #get chatrooms
 def get_groups():
     conn = sqlite3.connect('ponder.db')
     df = pd.read_sql_query('''SELECT username, pairs FROM status_table;''', conn)
     study_groups = make_groups_from_df(df)
     return study_groups
-        
+
+
 def update_nos(user, new_no):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
@@ -73,6 +82,7 @@ def update_yes(user, new_yes):
     yes = json.loads(c.execute("SELECT swipe_to from status_table WHERE username = user"))
     yes.append(new_yes)
     c.execute("REPLACE into status_table (swipe_to) VALUES (json.dumps(yes)) WHERE username = user")    
+
 
 def get_suggestions(username):
 
@@ -89,7 +99,8 @@ def get_suggestions(username):
         swipe_to = []
 
     suggestions = get_suggestions_from_df(df, username)
-    status_info = pd.read_sql_query(("SELECT * from status_table WHERE username = " + str(username)), con)
+    sql_query = f'''SELECT * from status_table WHERE username='{username}';'''
+    status_info = pd.read_sql_query(sql_query, con)
     # filter out people already rejected or accepted
     for name in suggestions:
         if name in nos or name in swipe_to:
@@ -97,11 +108,15 @@ def get_suggestions(username):
     suggs = json.dumps(suggestions)
     # print("suggestions are!\")
     print(suggs)
-    statement = "UPDATE status_table SET suggestions = '" + str(suggs) + "' WHERE username =" + str(username) 
-    print(statement)
+
     print("UPDATE CWD IS " + str(os.getcwd()))
-    # c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''',(username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
-    c.execute(statement)
+    c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''', (username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
+
+    sql_query = '''UPDATE status_table SET suggestions='{suggs}' WHERE username='{username}';'''
+    c.execute(sql_query)
+    con.commit()
+    con.close()
+
 
 #return PonderUser
 def get_next_suggestion(username):
@@ -112,10 +127,12 @@ def get_next_suggestion(username):
     print(df)
     print(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
     suggs = json.loads(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone()[0])[0]
+    print('AAAAAAAAAAAAAA', suggs)
     user = c.execute('''SELECT * FROM auth_table WHERE username=?;''',(str(suggs))).fetchone()
     PonderUser(user[0], user[2], user[3])
      
     return PonderUser(user[0], user[2], user[3])
+
 
 def get_user(username):
     conn = sqlite3.connect('ponder.db')
@@ -126,6 +143,7 @@ def get_user(username):
     conn.commit()
     conn.close()
     return PonderUser(suggested[0], suggested[2], suggested[3])
+
 
 def create_user(username, password, firstname, lastname, email):
     conn = sqlite3.connect('ponder.db')
@@ -143,6 +161,7 @@ def create_user(username, password, firstname, lastname, email):
         return True
     return False
 
+
 def create_profile(username, noise, collab, learn_style, classes, major, env):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
@@ -153,6 +172,7 @@ def create_profile(username, noise, collab, learn_style, classes, major, env):
             (username, '[1]','[2]','[3]','[4]','[5]'))
     conn.commit()
     conn.close()
+
 
 def login_user(username, password):
     conn = sqlite3.connect('ponder.db')
@@ -165,6 +185,7 @@ def login_user(username, password):
     if user:
         return user
     return False
+
 
 def get_suggestions_from_df(df, username):
     suggestions = {}
@@ -185,6 +206,7 @@ def get_suggestions_from_df(df, username):
     # print(suggestions.items())
     # todo key=lambda item: item[1],reverse=True
     return [i[0] for i in sorted(suggestions.items())]
+
 
 def make_groups_from_df(pairs_df):
     sgroups3 = []
