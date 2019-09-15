@@ -97,12 +97,12 @@ def swipe():
     username = str(session.get('username'))
     if request.form['swipe_value'] == '<3':
         message = 'YOU SWIPED RIGHT :D'
-        # new_yes = 
+        new_yes = get_next_suggestion(username).username
         update_yes(username, new_yes)
         pass  # do swipe right
     elif request.form['swipe_value'] == '</3':
         message = 'YOU SWIPED LEFT D:'
-        # new_no = 
+        new_no = get_next_suggestion(username).username
         update_nos(username, new_no)
         pass  # do swipe left
     else:

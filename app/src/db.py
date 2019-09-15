@@ -38,11 +38,12 @@ def create_tables():
     conn.commit()
     conn.close()
 
+#THIS BELOW FUNCTION IS NOT TESTED. THE BOTTOM QUERY IS PROBABLY WRONG
 #find pairwise groups (for get_groups)
 def get_pairs():
     con = sqlite3.connect('ponder.db')
     c = con.cursor()
-    df = pd.read_sql_query("SELECT username, swipe_to, swiped_from from status_table", con)
+    df = pd.read_sql_query('''SELECT username, swipe_to, swiped_from from status_table''', con)
     all_pairs = []
     for ind, row in df.iterrows():
         pairs = []
@@ -51,67 +52,70 @@ def get_pairs():
                 pairs.append(user)
         all_pairs.append(json.dumps(pairs))
 
-    c.execute("REPLACE into status_table (pairs) VALUES (?)", json.dumps(all_pairs))    
+    c.execute('''REPLACE into status_table (pairs) VALUES (?)''', json.dumps(all_pairs))    
 
+#THIS BELOW FUNCTION IS BROKEN BECAUSE OF make_groups_from_df
 #get chatrooms
 def get_groups():
     conn = sqlite3.connect('ponder.db')
     df = pd.read_sql_query('''SELECT username, pairs FROM status_table;''', conn)
+    print(df)
     study_groups = make_groups_from_df(df)
     return study_groups
         
+#LAST LINE OF update_nos and update_yes don't work. I'm just trying to update a single cell in the table lmao
 def update_nos(user, new_no):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
-    nos = json.loads(c.execute("SELECT nos from status_table WHERE username = user"))
+    nos = json.loads(c.execute('''SELECT nos from status_table WHERE username=?;''',str(user)).fetchone()[0])
     nos.append(new_no)
-    c.execute("REPLACE into status_table (nos) VALUES (json.dumps(nos)) WHERE username = user")    
+    c.execute('''REPLACE into status_table (nos) VALUES (json.dumps(nos)) username=?;''',str(user))
 
 def update_yes(user, new_yes):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
-    yes = json.loads(c.execute("SELECT swipe_to from status_table WHERE username = user"))
+    yes = json.loads(c.execute('''SELECT swipe_to from status_table WHERE username=?;''',str(user)).fetchone()[0])
     yes.append(new_yes)
-    c.execute("REPLACE into status_table (swipe_to) VALUES (json.dumps(yes)) WHERE username = user")    
+    c.execute('REPLACE into status_table (swipe_to) VALUES (%s) WHERE username=?=%s;''',(str(json.dumps(yes)), str(user)))
 
+#the last execute statement also doesn't work :(
 def get_suggestions(username):
-
     con = sqlite3.connect('ponder.db')
     c = con.cursor()
-    df = pd.read_sql_query("SELECT * from data_table", con)
+    df = pd.read_sql_query('''SELECT * from data_table''', con)
     try: 
-        nos = json.loads(c.execute("SELECT nos from status_table WHERE username = (?)",str(username)).fetchone())
+        nos = json.loads(c.execute('''SELECT nos from status_table WHERE username = (?)''',str(username)).fetchone())
     except:
         nos = []
     try:
-        swipe_to = json.loads(c.execute("SELECT swipe_to from status_table WHERE username = (?)",str(username)).fetchone())
+        swipe_to = json.loads(c.execute('''SELECT swipe_to from status_table WHERE username = (?)''',str(username)).fetchone())
     except:
         swipe_to = []
 
     suggestions = get_suggestions_from_df(df, username)
-    status_info = pd.read_sql_query(("SELECT * from status_table WHERE username = " + str(username)), con)
+    status_info = pd.read_sql_query(('''SELECT * from status_table WHERE username = ''' + str(username)), con)
     # filter out people already rejected or accepted
     for name in suggestions:
         if name in nos or name in swipe_to:
             suggestions.delete(name)
     suggs = json.dumps(suggestions)
-    # print("suggestions are!\")
+    # print('''suggestions are!\''')
     print(suggs)
-    statement = "UPDATE status_table SET suggestions = '" + str(suggs) + "' WHERE username =" + str(username) 
-    print(statement)
-    print("UPDATE CWD IS " + str(os.getcwd()))
-    # c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''',(username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
-    c.execute(statement)
+    # statement = '''UPDATE status_table SET suggestions = ''' + str(suggs) + ''' WHERE username =''' + str(username) 
+    # print(statement)
+    # print('''UPDATE CWD IS ''' + str(os.getcwd()))
+    c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''',(username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
+    # c.execute(statement)
 
 #return PonderUser
 def get_next_suggestion(username):
     get_suggestions(username)
     con = sqlite3.connect('ponder.db')
     c = con.cursor()
-    df = pd.read_sql_query("SELECT * from status_table", con)
+    df = pd.read_sql_query('''SELECT * from status_table''', con)
     print(df)
-    print(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
-    suggs = json.loads(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone()[0])[0]
+    print(c.execute('''SELECT suggestions from status_table WHERE username = (?)''',str(username)).fetchone())
+    suggs = json.loads(c.execute('''SELECT suggestions from status_table WHERE username = (?)''',str(username)).fetchone()[0])[0]
     user = c.execute('''SELECT * FROM auth_table WHERE username=?;''',(str(suggs))).fetchone()
     PonderUser(user[0], user[2], user[3])
      
@@ -143,12 +147,13 @@ def create_user(username, password, firstname, lastname, email):
         return True
     return False
 
+#TODO this should replace existing rows but it just makes a new one... 
 def create_profile(username, noise, collab, learn_style, classes, major, env):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
     c.execute('''REPLACE into data_table VALUES (?,?,?,?,?,?,?);''',
                 (username, noise, collab, learn_style, classes, major, env))
-    print("FIRST CWD IS " + str(os.getcwd()))
+    print('''FIRST CWD IS ''' + str(os.getcwd()))
     c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?);''',
             (username, '[1]','[2]','[3]','[4]','[5]'))
     conn.commit()
@@ -183,7 +188,7 @@ def get_suggestions_from_df(df, username):
             preferences = np.dot(soft_dot1, soft_dot2)
             suggestions[ind2] = preferences
     # print(suggestions.items())
-    # todo key=lambda item: item[1],reverse=True
+    # todo key=lambda item: item[1],reverse=True (right now it's just returning a random order)
     return [i[0] for i in sorted(suggestions.items())]
 
 def make_groups_from_df(pairs_df):
