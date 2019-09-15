@@ -13,7 +13,7 @@ def hello_world():
     if not session.get('logged_in'):
         return render_template('landing.html')
     else:
-        return f'Hello, {session["firstname"]}! <a href="/logout">Logout</a>'
+        return render_template('home.html')
 
 
 @app.route('/login_page')
