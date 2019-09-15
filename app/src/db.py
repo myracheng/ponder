@@ -117,7 +117,6 @@ def get_next_suggestion(username):
     print(c.execute('''SELECT suggestions from status_table WHERE username = (?)''',str(username)).fetchone())
     suggs = json.loads(c.execute('''SELECT suggestions from status_table WHERE username = (?)''',str(username)).fetchone()[0])[0]
     user = c.execute('''SELECT * FROM auth_table WHERE username=?;''',(str(suggs))).fetchone()
-    PonderUser(user[0], user[2], user[3])
      
     return PonderUser(user[0], user[2], user[3])
 
