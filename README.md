@@ -1,4 +1,5 @@
 # Ponder
+<img src="/app/static/transparentraindrop.png" width="100"> 
 
 ## Installation
 Make sure you're in the correct directory before attempting to start the app.
