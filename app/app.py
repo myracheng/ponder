@@ -51,7 +51,6 @@ def login():
 
     user = auth_user(username, password)
     if user:
-        flash('Logged in!')
         session['username'] = user.username
         session['firstname'] = user.firstname
         session['lastname'] = user.lastname
@@ -118,7 +117,7 @@ def profile_page():
 @app.route('/profile', methods=['POST'])
 def profile():
     noises = {'silent': 0, 'ambient': 1, 'loud': 2}
-    collabs =  {'moral': 0, 'discussion': 1}
+    collabs = {'moral': 0, 'discussion': 1}
     learns = {'audio': 1, 'visual': 2, 'kinesthetic': 3}
     envs = {'library': 1, 'visual': 2, 'room': 3, 'common': 4}
     username = session.get('username')
@@ -130,11 +129,8 @@ def profile():
     major = request.form['major']
     env = envs[request.form['env']]
 
-    user = create_profile(username, noise, collab, learn_style, classes, major, env)
-    if user:
-        flash('Profile updated.')
-    else:
-        flash('Could not update profile.')
+    create_profile(username, noise, collab, learn_style, classes, major, env)
+    flash('Profile updated.')
     return profile_page()
 
 

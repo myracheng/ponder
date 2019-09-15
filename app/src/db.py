@@ -59,6 +59,7 @@ def get_pairs():
 
     c.execute('''REPLACE into status_table (pairs) VALUES (?)''', json.dumps(all_pairs))    
 
+
 #get chatrooms
 def get_groups():
     conn = sqlite3.connect('ponder.db')
@@ -71,31 +72,37 @@ def get_groups():
 def update_nos(user, new_no):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
-    nos = json.loads(c.execute('''SELECT nos from status_table WHERE username=?;''',str(user)).fetchone()[0])
+    nos = json.loads(c.execute(f'''SELECT nos from status_table WHERE username='{user}';''').fetchone()[0])
     nos.append(new_no)
     nosjson = json.dumps(nos)
-    sql_query = '''UPDATE status_table SET suggestions='{nosjson}' WHERE username='{user}';'''
+    sql_query = f'''UPDATE status_table SET nos='{nosjson}' WHERE username='{user}';'''
     c.execute(sql_query)
+    conn.commit()
+    conn.close()
+
 
 def update_yes(user, new_yes):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
-    yes = json.loads(c.execute('''SELECT swipe_to from status_table WHERE username=?;''',str(user)).fetchone()[0])
+    yes = json.loads(c.execute(f'''SELECT swipe_to from status_table WHERE username='{user}';''').fetchone()[0])
     yes.append(new_yes)
     yeejson = json.dumps(yes)
-    sql_query = '''UPDATE status_table SET suggestions='{yeejson}' WHERE username='{user}';'''
+    sql_query = f'''UPDATE status_table SET swipe_to='{yeejson}' WHERE username='{user}';'''
     c.execute(sql_query)
+    conn.commit()
+    conn.close()
+
 
 def get_suggestions(username):
     con = sqlite3.connect('ponder.db')
     c = con.cursor()
-    df = pd.read_sql_query('''SELECT * from data_table''', con)
+    df = pd.read_sql_query('''SELECT * from data_table;''', con)
     try: 
-        nos = json.loads(c.execute('''SELECT nos from status_table WHERE username = (?)''',str(username)).fetchone())
+        nos = json.loads(c.execute('''SELECT nos from status_table WHERE username = (?);''',str(username)).fetchone())
     except:
         nos = []
     try:
-        swipe_to = json.loads(c.execute('''SELECT swipe_to from status_table WHERE username = (?)''',str(username)).fetchone())
+        swipe_to = json.loads(c.execute('''SELECT swipe_to from status_table WHERE username = (?);''',str(username)).fetchone())
     except:
         swipe_to = []
 
@@ -110,12 +117,20 @@ def get_suggestions(username):
     suggs = json.dumps(suggestions)
     # print('''suggestions are!\''')
     print(suggs)
+    print(type(suggs))
 
     print("UPDATE CWD IS " + str(os.getcwd()))
     # c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''', (username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
 
-    sql_query = '''UPDATE status_table SET suggestions='{suggs}' WHERE username='{username}';'''
+    sql_query = f'''UPDATE status_table SET suggestions='{suggs}' WHERE username='{username}';'''
+    print(sql_query)
     c.execute(sql_query)
+
+    print("NEW TABLE:")
+    df = pd.read_sql_query('''SELECT * from status_table;''', con)
+    suggestions = get_suggestions_from_df(df, username)
+    print(suggestions)
+
     con.commit()
     con.close()
 
@@ -127,11 +142,15 @@ def get_next_suggestion(username):
     c = con.cursor()
     df = pd.read_sql_query('''SELECT * from status_table''', con)
     print(df)
-    print(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
-    suggs = json.loads(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone()[0])
+    # print(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
+    suggs = json.loads(c.execute(f'''SELECT suggestions from status_table WHERE username='{username}';''').fetchone()[0])[0]
+    print(type(suggs))
     print('AAAAAAAAAAAAAA', suggs)
-    user = c.execute('''SELECT * FROM auth_table WHERE username=(?);''',(suggs)).fetchone()
-     
+
+    print(f'''SELECT * FROM auth_table WHERE username='{suggs}';''')
+
+    user = c.execute(f'''SELECT * FROM auth_table WHERE username='{suggs}';''').fetchone()
+
     return PonderUser(user[0], user[2], user[3])
 
 
@@ -162,6 +181,7 @@ def create_user(username, password, firstname, lastname, email):
         return True
     return False
 
+
 def create_profile(username, noise, collab, learn_style, classes, major, env):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
@@ -169,7 +189,7 @@ def create_profile(username, noise, collab, learn_style, classes, major, env):
                 (username, noise, collab, learn_style, classes, major, env))
     print('''FIRST CWD IS ''' + str(os.getcwd()))
     c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?);''',
-            (username, '[]','[]','[]','[]','[]'))
+              (username, '[]', '[]', '[]', '[]', '[]'))
     conn.commit()
     conn.close()
 
