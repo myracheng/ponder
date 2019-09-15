@@ -4,6 +4,7 @@ from flask_socketio import emit, join_room, leave_room
 import sys
 from .. import socketio
 
+
 @socketio.on('joined', namespace='/chat')
 def joined(message):
     """Sent by clients when they enter a room.

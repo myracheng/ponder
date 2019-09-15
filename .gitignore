@@ -1,2 +1,5 @@
 .idea/
-app/src/__pycache__/*
+app/src/__pycache__/
+env/
+__pycache__/
+venv/
