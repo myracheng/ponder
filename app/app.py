@@ -19,6 +19,11 @@ def hello_world():
         return render_template('home.html', firstname=session['firstname'], lastname=session['lastname'], username=session['username'])
 
 
+@app.route('/chatrooms_page')
+def chatrooms_page():
+    return render_template('chatrooms.html')
+
+
 @app.route('/chatrooms', methods=['POST'])
 def chatrooms():
     room = request.form['chatroom']
