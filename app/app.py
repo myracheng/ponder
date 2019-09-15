@@ -1,6 +1,9 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort
+from flask_socketio import SocketIO
 from src import auth_user, register_user
 import os
+
+socketio = SocketIO()
 
 app = Flask(__name__)
 
@@ -34,6 +37,7 @@ def login():
         session['username'] = user.username
         session['firstname'] = user.firstname
         session['logged_in'] = True
+        session['room'] = 'tmp'
     else:
         flash('wrong password!')
     return hello_world()
@@ -62,6 +66,22 @@ def logout():
     return hello_world()
 
 
+@app.route('/chat')
+def chat():
+    """Chat room. The user's name and room must be stored in
+    the session."""
+    # name = session.get('name', '')
+    name = session['firstname']
+    room = session.get('room', '')
+    # room = session['room']
+    # if name == '' or room == '':
+    #     return redirect(url_for('.index'))
+    return render_template('chat.html', name=name, room=room)
+
+
 if __name__ == '__main__':
-    app.secret_key = os.urandom(12)
-    app.run(debug=True, host='127.0.0.1', port=8080)
+    app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
+    app.debug = True
+    socketio.init_app(app)
+    socketio.run(app)
+    # app.run(debug=True, host='127.0.0.1', port=8080)
