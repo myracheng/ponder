@@ -1,106 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <form action="/profile" method="POST">
-        <div class="control-group">
-            <input type="text" class="login-field" value="" placeholder="username" name="username"></div>
-        <div class="control-group">
-                                <p>Noise:</p>
+{% block content %}
+<div class="container">
+    <h1>Profile</h1>
 
-                <div>
-                <input type="radio" id="silent" name="noise" value="silent"
-                        checked>
-                <label for="silent">silent</label>
-                </div>
+    <form action="/profile" method="POST" class="form-signin">
+        <h5><strong>Username</strong></h5>
+        <input type="text" class="form-control login-field" value="" placeholder="Username" name="username">
 
-                <div>
-                <input type="radio" id="ambient" name="noise" value="ambient">
-                <label for="ambient">ambient</label>
-                </div>
+        <h5><strong>Major</strong></h5>
+        <input type="text" class="form-control login-field" value="" placeholder="Major" name="major">
 
-                <div>
-                <input type="radio" id="loud" name="noise" value="loud">
-                <label for="loud">loud</label>
-                </div>
+        <h5><strong>Class</strong></h5>
+        <input type="text" class="form-control login-field" value="" placeholder="Class" name="class">
+
+        <h5><strong>Noise</strong></h5>
+
+        <div>
+        <input type="radio" id="silent" name="noise" value="silent"
+                checked>
+        <label for="silent">silent</label>
+        </div>
+
+        <div>
+        <input type="radio" id="ambient" name="noise" value="ambient">
+        <label for="ambient">ambient</label>
+        </div>
+
+        <div>
+        <input type="radio" id="loud" name="noise" value="loud">
+        <label for="loud">loud</label>
+        </div>
         
+            
+        <h5><strong>Collaboration style</strong></h5>
+
+        <div>
+        <input type="radio" id="moral" name="collab" value="moral"
+                checked>
+        <label for="moral">moral support</label>
         </div>
 
-        <div class="control-group">
-                <p>Collab:</p>
-
-                <div>
-                <input type="radio" id="moral" name="collab" value="moral"
-                        checked>
-                <label for="moral">moral support</label>
-                </div>
-
-                <div>
-                <input type="radio" id="discussion" name="collab" value="discussion">
-                <label for="discussion">discussion</label>
-                </div>
+        <div>
+        <input type="radio" id="discussion" name="collab" value="discussion">
+        <label for="discussion">discussion</label>
         </div>
 
-        <div class="control-group">
-                <p>Learning style:</p>
+        <h5><strong>Learning style</strong></h5>
 
-                <div>
-                <input type="radio" id="audio" name="learn_style" value="audio"
-                        checked>
-                <label for="audio">audio</label>
-                </div>
-
-                <div>
-                <input type="radio" id="cafe" name="learn_style" value="cafe">
-                <label for="cafe">cafe</label>
-                </div>
-
-                <div>
-                        <input type="radio" id="kinesthetic" name="learn_style" value="kinesthetic">
-                        <label for="kinesthetic">kinesthetic</label>
-                        </div>
+        <div>
+        <input type="radio" id="audio" name="learn_style" value="audio"
+                checked>
+        <label for="audio">audio</label>
         </div>
 
-        <div class="control-group">
-                <p>Environment:</p>
+        <div>
+        <input type="radio" id="cafe" name="learn_style" value="cafe">
+        <label for="cafe">cafe</label>
+        </div>
 
-                <div>
-                <input type="radio" id="library" name="env" value="library"
-                        checked>
-                <label for="library">library</label>
-                </div>
+        <div>
+        <input type="radio" id="kinesthetic" name="learn_style" value="kinesthetic">
+        <label for="kinesthetic">kinesthetic</label>
+        </div>
 
-                <div>
-                <input type="radio" id="visual" name="env" value="visual">
-                <label for="visual">visual</label>
-                </div>
+        <h5><strong>Environment</strong></h5>
 
-                <div>
-                        <input type="radio" id="room" name="env" value="room">
-                        <label for="room">study room</label>
-                        </div>
+        <div>
+        <input type="radio" id="library" name="env" value="library"
+                checked>
+        <label for="library">library</label>
+        </div>
 
-                        <div>
-                                <input type="radio" id="common" name="env" value="common">
-                                <label for="common">common open area</label>
-                                </div>
+        <div>
+        <input type="radio" id="visual" name="env" value="visual">
+        <label for="visual">visual</label>
+        </div>
+
+        <div>
+        <input type="radio" id="room" name="env" value="room">
+        <label for="room">study room</label>
+        </div>
+
+        <div>
+        <input type="radio" id="common" name="env" value="common">
+        <label for="common">common open area</label>
         </div>
 
 
-            <div class="control-group">
-            <input type="text" class="login-field" value="" placeholder="major" name="major"></div>
-            <div class="control-group">
-                    <input type="text" class="class" value="" placeholder="class" name="class"></div> <!--TODO-->
-    
-        <div class="control-group">
-        <input type="submit" value="Register" class="btn btn-primary btn-large btn-block"></div>
-        </form>
-    
 
-    {% include 'footer.html' %}
-</body>
-</html>
+        <div class="control-group">
+        <input type="submit" value="Submit" class="btn btn-primary btn-lg btn-block"></div>
+    </form>
+</div>
+{% endblock %}

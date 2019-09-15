@@ -1,4 +1,9 @@
-<div>
-    <a href="/login_page">Login</a>
-    <a href="/register_page">Register</a>
+{% extends 'base-out.html'  %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center" style="margin-bottom:40px">Welcome to Ponder!</h1>
+    <a href="/login_page" class="btn btn-primary btn-lg btn-block">Login</a>
+    <a href="/register_page" class="btn btn-primary btn-lg btn-block">Register</a>
 </div>
+{% endblock %}

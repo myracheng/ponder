@@ -3,7 +3,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_bootstrap import Bootstrap
 from src.auth import auth_user, register_user
 from src.user import PonderUser
-from src.db import update_nos, update_yes, get_next_suggestion, create_profile
+from src.db import update_nos, update_yes, get_next_suggestion, create_profile, get_groups
 import os
 import random
 
@@ -22,7 +22,9 @@ def hello_world():
 
 @app.route('/chatrooms_page')
 def chatrooms_page():
-    return render_template('chatrooms.html')
+    groups = get_groups();
+    groups = [', '.join(l) for l in groups]
+    return render_template('chatrooms.html', groups=groups)
 
 
 @app.route('/chatrooms', methods=['POST'])

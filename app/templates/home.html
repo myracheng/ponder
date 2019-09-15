@@ -1,7 +1,10 @@
-<div>
-    <p>Current User: {{ firstname }} {{ lastname }} ({{ username }}) </p>
-    <a href="/swipe_page">Start Swiping!</a>
-    <a href="/chatrooms_page">Chat Rooms</a>
-</div>
+{% extends 'base.html' %}
 
-{% include 'footer.html' %}
+{% block content %}
+<div class="container">
+    <h1>{{ firstname }} {{ lastname }}</h1>
+    <h3 class="text-muted" style="margin-bottom:40px">@{{ username }}</h3>
+    <a href="/swipe_page" class="btn btn-primary btn-lg btn-block">Start Swiping!</a>
+    <a href="/chatrooms_page" class="btn btn-primary btn-lg btn-block" >Chat Rooms</a>
+</div>
+{% endblock %}
