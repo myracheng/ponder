@@ -1,7 +1,10 @@
+import os
 import sqlite3
 import pandas as pd
 import numpy as np
 import json
+from .user import PonderUser
+
 
 def create_tables():
     conn = sqlite3.connect('ponder.db')
@@ -48,7 +51,7 @@ def get_pairs():
                 pairs.append(user)
         all_pairs.append(json.dumps(pairs))
 
-    c.execute("REPLACE into status_table (pairs) VALUES (json.dumps(all_pairs))")    
+    c.execute("REPLACE into status_table (pairs) VALUES (?)", json.dumps(all_pairs))    
 
 #get chatrooms
 def get_groups():
@@ -71,13 +74,8 @@ def update_yes(user, new_yes):
     yes.append(new_yes)
     c.execute("REPLACE into status_table (swipe_to) VALUES (json.dumps(yes)) WHERE username = user")    
 
-# def get_suggestions_as_array(user):
-#     con = sqlite3.connect('ponder.db')
-#     c = con.cursor()
-#     get_suggestions(user) # make sure it's updated
-#     return json.loads(c.execute("SELECT suggestions from status_table WHERE username = user"))
-
 def get_suggestions(username):
+
     con = sqlite3.connect('ponder.db')
     c = con.cursor()
     df = pd.read_sql_query("SELECT * from data_table", con)
@@ -86,36 +84,48 @@ def get_suggestions(username):
     except:
         nos = []
     try:
-        swipe_to = json.loads(c.execute("SELECT swipe_to from status_table WHERE username = username").fetchone())
+        swipe_to = json.loads(c.execute("SELECT swipe_to from status_table WHERE username = (?)",str(username)).fetchone())
     except:
         swipe_to = []
 
     suggestions = get_suggestions_from_df(df, username)
-
+    status_info = pd.read_sql_query(("SELECT * from status_table WHERE username = " + str(username)), con)
     # filter out people already rejected or accepted
     for name in suggestions:
         if name in nos or name in swipe_to:
             suggestions.delete(name)
-
-    c.execute("REPLACE into status_table (suggestions) VALUES (json.dumps(suggestions)) WHERE username = [user]")    
+    suggs = json.dumps(suggestions)
+    # print("suggestions are!\")
+    print(suggs)
+    statement = "UPDATE status_table SET suggestions = '" + str(suggs) + "' WHERE username =" + str(username) 
+    print(statement)
+    print("UPDATE CWD IS " + str(os.getcwd()))
+    # c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''',(username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
+    c.execute(statement)
 
 #return PonderUser
 def get_next_suggestion(username):
     get_suggestions(username)
     con = sqlite3.connect('ponder.db')
     c = con.cursor()
-    suggs = json.loads(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
-    return suggs[0]
+    df = pd.read_sql_query("SELECT * from status_table", con)
+    print(df)
+    print(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
+    suggs = json.loads(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone()[0])[0]
+    user = c.execute('''SELECT * FROM auth_table WHERE username=?;''',(str(suggs))).fetchone()
+    PonderUser(user[0], user[2], user[3])
+     
+    return PonderUser(user[0], user[2], user[3])
 
 def get_user(username):
     conn = sqlite3.connect('ponder.db')
     c = conn.cursor()
-    get_suggestions(user) # make sure it's updated
+    get_suggestions(username) # make sure it's updated
     suggested = json.loads(c.execute('''SELECT * FROM auth_table WHERE username=?;''',
                      (username, )).fetchone())[0]
     conn.commit()
     conn.close()
-    return PonderUser(suggested_user[0], suggested_user[2], suggested_user[3])
+    return PonderUser(suggested[0], suggested[2], suggested[3])
 
 def create_user(username, password, firstname, lastname, email):
     conn = sqlite3.connect('ponder.db')
@@ -125,6 +135,7 @@ def create_user(username, password, firstname, lastname, email):
     if not user:
         c.execute('''INSERT into auth_table VALUES (?,?,?,?,?,?);''',
                   (username, password, firstname, lastname, email, 'PLACEHOLDER'))
+        
     conn.commit()
     conn.close()
 
@@ -137,6 +148,9 @@ def create_profile(username, noise, collab, learn_style, classes, major, env):
     c = conn.cursor()
     c.execute('''REPLACE into data_table VALUES (?,?,?,?,?,?,?);''',
                 (username, noise, collab, learn_style, classes, major, env))
+    print("FIRST CWD IS " + str(os.getcwd()))
+    c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?);''',
+            (username, '[1]','[2]','[3]','[4]','[5]'))
     conn.commit()
     conn.close()
 
@@ -155,22 +169,22 @@ def login_user(username, password):
 def get_suggestions_from_df(df, username):
     suggestions = {}
     row1 = df[df['username'] == username]
-    if row1['noise'] == 0:
+
+    if (row1['noise'].values[0] == 0):
         second_df = df[df['noise'] == 0]
     else:
         second_df = df[df['noise'] != 0]
-    for ind2, row2 in second_df[second_df['collab'] == row1['collab']].iterrows():
-        shared_classes = set(row1['classes']).intersection(row2['classes'])
-        if bool(shared_classes):
-            soft_dot1 = row1[['style', 'env', 'noise']].values
-            soft_dot2 = row2[['style', 'env', 'noise']].values
-            num_shared_classes = len(shared_classes)
-            for course in shared_classes:
-                soft_dot1.append(row1['classes'][course])
-                soft_dot2.append(row1['classes'][course])
-            preferences = num_shared_classes + np.dot(soft_dot1, soft_dot2)
+    
+    for ind2, row2 in second_df[second_df['collab'] == row1['collab'].values[0]].iterrows():
+        if row1['classes'].values[0] == row2['classes']:
+            print()
+            soft_dot1 = row1[['learn_style', 'env', 'noise']].values
+            soft_dot2 = row2[['learn_style', 'env', 'noise']].values
+            preferences = np.dot(soft_dot1, soft_dot2)
             suggestions[ind2] = preferences
-    return [i[0] for i in sorted(suggestions.items(),key=lambda item: item[1],reverse=True)]
+    # print(suggestions.items())
+    # todo key=lambda item: item[1],reverse=True
+    return [i[0] for i in sorted(suggestions.items())]
 
 def make_groups_from_df(pairs_df):
     sgroups3 = []
