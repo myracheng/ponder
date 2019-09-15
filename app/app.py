@@ -95,7 +95,11 @@ def swipe_page():
 
 @app.route('/swipe', methods=['POST'])
 def swipe():
+    print('THIS IS A SENTENCE')
     username = str(session.get('username'))
+    print('ASDJSAHDKASK', request.form['swipe_value'])
+    print(request.form['swipe_value'] == '<3')
+    print(request.form['swipe_value'] == '</3')
     if request.form['swipe_value'] == '<3':
         message = 'YOU SWIPED RIGHT :D'
         new_yes = get_next_suggestion(username).username
