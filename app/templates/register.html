@@ -45,5 +45,14 @@
             </div>
             <input type="submit" value="Register" class="btn btn-primary btn-lg btn-block">
         </form>
+
+        <h2>{% with messages = get_flashed_messages() %}
+               {% if messages %}
+                  {% for message in messages %}
+                     {{ message }}
+                  {% endfor %}
+               {% endif %}
+            {% endwith %}
+        </h2>
     </div>
 {% endblock %}

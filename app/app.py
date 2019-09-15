@@ -57,9 +57,10 @@ def login():
         session['lastname'] = user.lastname
         session['logged_in'] = True
         session['room'] = 'tmp'
+        return hello_world()
     else:
-        flash('wrong password!')
-    return hello_world()
+        flash('Wrong password!')
+        return login_page()
 
 
 @app.route('/register', methods=['POST'])
@@ -74,9 +75,10 @@ def register():
 
     if user:
         flash('Success! Account created.')
+        return register_page()
     else:
-        flash('username taken! please choose another username')
-    return hello_world()
+        flash('Username taken! Please choose another username')
+        return register_page()
 
 
 @app.route('/logout')
@@ -98,16 +100,13 @@ def swipe():
     if request.form['swipe_value'] == '<3':
         message = 'YOU SWIPED RIGHT :D'
         new_yes = get_next_suggestion(username).username
-        update_yes(username, new_yes)
-        pass  # do swipe right
+        update_yes(username, new_yes)  # do swipe right
     elif request.form['swipe_value'] == '</3':
         message = 'YOU SWIPED LEFT D:'
         new_no = get_next_suggestion(username).username
-        update_nos(username, new_no)
-        pass  # do swipe left
+        update_nos(username, new_no)  # do swipe left
     else:
-        message = "rip"
-        pass  # process error
+        message = "An error occurred."
     return render_template('swipe.html', user=get_next_suggestion(username), message=message)
 
 
@@ -115,18 +114,19 @@ def swipe():
 def profile_page():
     return render_template('profile.html')
 
+
 @app.route('/profile', methods=['POST'])
 def profile():
-    noises = {'silent':0, 'ambient': 1, 'loud': 2}
-    collabs =  {'moral':0, 'discussion': 1}
-    learns = {'audio':1, 'visual':2, 'kinesthetic': 3}
-    envs = {'library': 1, 'visual': 2, 'room': 3, 'common':4}
+    noises = {'silent': 0, 'ambient': 1, 'loud': 2}
+    collabs =  {'moral': 0, 'discussion': 1}
+    learns = {'audio': 1, 'visual': 2, 'kinesthetic': 3}
+    envs = {'library': 1, 'visual': 2, 'room': 3, 'common': 4}
     username = session.get('username')
 
     noise = noises[request.form['noise']]
     collab = collabs[request.form['collab']]
     learn_style = learns[request.form['learn_style']]
-    classes = request.form['class'] #todo
+    classes = request.form['class']
     major = request.form['major']
     env = envs[request.form['env']]
 
@@ -134,8 +134,8 @@ def profile():
     if user:
         flash('Profile updated.')
     else:
-        flash('wrong password!')
-    return hello_world()
+        flash('Could not update profile.')
+    return profile_page()
 
 
 @socketio.on('joined', namespace='/chat')

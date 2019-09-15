@@ -49,5 +49,14 @@
         <div class="control-group" style="margin-top:20px">
         <input type="submit" value="Submit" class="btn btn-primary btn-lg btn-block"></div>
     </form>
+
+    <h2>{% with messages = get_flashed_messages() %}
+           {% if messages %}
+              {% for message in messages %}
+                 {{ message }}
+              {% endfor %}
+           {% endif %}
+        {% endwith %}
+    </h2>
 </div>
 {% endblock %}
