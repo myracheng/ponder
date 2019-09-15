@@ -3,13 +3,18 @@ import sqlite3
 import pandas as pd
 import numpy as np
 import json
+import random
 
 
 class PonderUser:
-    def __init__(self, username, firstname, lastname):
+    def __init__(self, username, firstname, lastname, major='Course 6', tagline='lets get this bread', shared_courses='6.006', img='https://static.thenounproject.com/png/33874-200.png?fbclid=IwAR2yz6_wN5QrbNJJXytATKJlePB20nhWVRYN4OzxUhp021dmAvwLMI1Zopc'):
         self.username = username
         self.firstname = firstname
         self.lastname = lastname
+        self.major = 'Course ' + ', '.join([str(random.randint(1, 24)) for _ in range(random.randint(1, 3))])
+        self.tagline = tagline
+        self.shared_courses = shared_courses
+        self.img = img
 
 
 def create_tables():

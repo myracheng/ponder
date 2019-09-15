@@ -3,11 +3,10 @@
 {% block content %}
 
 <div class="container text-center">
-    <h1>{{ user.firstname }} {{ user.lastname }}</h1>
-    <h3 class="text-muted" style="margin-bottom:30px">@{{ user.username }}</h3>
+    <h1>{{ user.firstname }} {{ user.lastname }} (@{{ user.username }}) </h1>
     <h3 class="text-muted" style="margin-bottom:30px">{{ user.major }}</h3>
-    <h3 class="text-muted" style="margin-bottom:30px">{{ user.shared_courses }}</h3>
-    <h3 class="text-muted" style="margin-bottom:40px">{{ user.tagline }}</h3>
+    <h3 class="text-muted" style="margin-bottom:30px">Shared Classes: {{ user.shared_courses }}</h3>
+    <h3 class="text-muted" style="margin-bottom:40px">"{{ user.tagline }}"</h3>
     <form action="/swipe" method="POST">
         <input class="btn btn-success btn-lg" type="submit" name="swipe_value" value="yay">
         <input class="btn btn-light btn-lg" type="submit" name="swipe_value" value="nah">
