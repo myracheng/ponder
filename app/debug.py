@@ -16,5 +16,15 @@ def dump_db():
     conn.close()
 
 
+def delete_db_row(username):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+
+    c.execute(f'''DELETE from status_table WHERE username='{username}';''')
+
+    conn.commit()
+    conn.close()
+
+
 if __name__ == '__main__':
     dump_db()

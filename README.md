@@ -22,6 +22,7 @@ To populate the database
 ```
 $ python3 -i src/db.py
 >>> create_tables()
+```
 
 Test at:
 ```
@@ -30,6 +31,11 @@ localhost:8080/
 
 Default credentials:
 ```
-username: username
-password: password
+username: a
+password: a
+```
+
+To debug:
+```
+$ python3 -i debug.py
 ```

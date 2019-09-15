@@ -140,12 +140,16 @@ def get_next_suggestion(username):
     df = pd.read_sql_query('''SELECT * from status_table''', con)
     print(df)
     # print(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
-    suggs = json.loads(c.execute(f'''SELECT suggestions from status_table WHERE username='{username}';''').fetchone()[0])[0]
-    print(type(suggs))
+    suggs = json.loads(c.execute(f'''SELECT suggestions from status_table WHERE username='{username}';''').fetchone()[0])
+    already_seen = json.loads(c.execute(f'''SELECT swipe_to from status_table WHERE username='{username}';''').fetchone()[0])
+    already_seen.extend(json.loads(c.execute(f'''SELECT nos from status_table WHERE username='{username}';''').fetchone()[0]))
     print('AAAAAAAAAAAAAA', suggs)
-    print(f'''SELECT * FROM auth_table WHERE username='{suggs}';''')
 
-    user = c.execute(f'''SELECT * FROM auth_table WHERE username='{suggs}';''').fetchone()
+    for sugg in suggs:
+        if sugg not in already_seen:
+            break
+
+    user = c.execute(f'''SELECT * FROM auth_table WHERE username='{sugg}';''').fetchone()
     return PonderUser(user[0], user[2], user[3])
 
 
