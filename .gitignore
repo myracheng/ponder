@@ -3,7 +3,6 @@ app/src/__pycache__/
 env/
 __pycache__/
 venv/
-app/ponder.db
 match_testing.ipynb
 ipynb_checkpoints/
 .DS_Store

@@ -40,3 +40,7 @@ To debug:
 ```
 $ python3 -i debug.py
 ```
+
+## Examples
+<img src="/app/static/screenshot.png"> 
+
