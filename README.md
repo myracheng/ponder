@@ -1,25 +1,30 @@
 # Ponder
 
 ## Installation
-Dependencies:
-- Flask
-- sqlite3
+Make sure you're in the correct directory before attempting to start the app.
 
-Make sure Flask is installed correctly.
+```
+$ cd app/
+```
 
-`$ pip install Flask`
+To install the dependencies:
 
-To start the server:
+```
+$ pip install -r requirements.txt
+````
+To start the server
 
-`$ cd app`
-
-`$ python3 app.py`
+```
+$ python3 app.py
+```
 
 Test at:
-`localhost:8080`
+```
+localhost:8080/
+```
 
 Default credentials:
 ```
-username: user 
+username: username
 password: password
 ```
