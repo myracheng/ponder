@@ -102,6 +102,7 @@ def get_suggestions(username):
     suggestions = get_suggestions_from_df(df, username)
     sql_query = f'''SELECT * from status_table WHERE username='{username}';'''
     status_info = pd.read_sql_query(sql_query, con)
+    print(suggestions)
     # filter out people already rejected or accepted
     for name in suggestions:
         if name in nos or name in swipe_to:
@@ -111,7 +112,7 @@ def get_suggestions(username):
     print(suggs)
 
     print("UPDATE CWD IS " + str(os.getcwd()))
-    c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''', (username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
+    # c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''', (username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
 
     sql_query = '''UPDATE status_table SET suggestions='{suggs}' WHERE username='{username}';'''
     c.execute(sql_query)
@@ -127,9 +128,9 @@ def get_next_suggestion(username):
     df = pd.read_sql_query('''SELECT * from status_table''', con)
     print(df)
     print(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone())
-    suggs = json.loads(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone()[0])[0]
+    suggs = json.loads(c.execute("SELECT suggestions from status_table WHERE username = (?)",str(username)).fetchone()[0])
     print('AAAAAAAAAAAAAA', suggs)
-    user = c.execute('''SELECT * FROM auth_table WHERE username=?;''',(str(suggs))).fetchone()
+    user = c.execute('''SELECT * FROM auth_table WHERE username=(?);''',(suggs)).fetchone()
      
     return PonderUser(user[0], user[2], user[3])
 
@@ -168,7 +169,7 @@ def create_profile(username, noise, collab, learn_style, classes, major, env):
                 (username, noise, collab, learn_style, classes, major, env))
     print('''FIRST CWD IS ''' + str(os.getcwd()))
     c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?);''',
-            (username, '[1]','[2]','[3]','[4]','[5]'))
+            (username, '[]','[]','[]','[]','[]'))
     conn.commit()
     conn.close()
 
@@ -186,42 +187,52 @@ def login_user(username, password):
     return False
 
 def get_suggestions_from_df(df, username):
-    suggestions = {}
-    row1 = df[df['username'] == username]
+    print(df)
+    output = df['username'].unique().tolist()
+    print(output)
+    output.remove(username)
+    return output
+    # suggestions = {}
+    # row1 = df[df['username'] == username]
 
-    if (row1['noise'].values[0] == 0):
-        second_df = df[df['noise'] == 0]
-    else:
-        second_df = df[df['noise'] != 0]
+    # if (row1['noise'] == 0):
+    #     second_df = df[df['noise'] == 0]
+    # else:
+    #     second_df = df[df['noise'] != 0]
     
-    for ind2, row2 in second_df[second_df['collab'] == row1['collab'].values[0]].iterrows():
-        if row1['classes'].values[0] == row2['classes']:
-            print()
-            soft_dot1 = row1[['learn_style', 'env', 'noise']].values
-            soft_dot2 = row2[['learn_style', 'env', 'noise']].values
-            preferences = np.dot(soft_dot1, soft_dot2)
-            suggestions[ind2] = preferences
-    return [i[0] for i in sorted(suggestions.items())]
+    # for ind2, row2 in second_df[second_df['collab'] == row1['collab']].iterrows():
+    #     if row1['classes'] == row2['classes']:
+    #         print(suggestions)
+    #         soft_dot1 = row1[['learn_style', 'env', 'noise']].values
+    #         soft_dot2 = row2[['learn_style', 'env', 'noise']].values
+    #         preferences = np.dot(soft_dot1, soft_dot2)
+    #         suggestions[row2['username']] = preferences
+    # print("suggestions r")
+    # print(suggestions)
+    # return [i[0] for i in sorted(suggestions.items())]
 
 
 def make_groups_from_df(pairs_df):
-    sgroups3 = []
-    sgroups4 = []
-    seen = set()
-    output_df = pd.DataFrame({'names': pairs_df['name']})
-    for ind, row in pairs_df.iterrows():
-        for student in row['matched']: #all possible pairs... find if 3rd persn
-            possible_thirds = set(pairs_df[pairs_df['name'] == student]['matched'].values[0]).intersection(row['matched'])
-            for name in possible_thirds:
-                sgroup = frozenset([row['name'], student, name])
-                if sgroup not in seen and not seen.add(sgroup):
-                    possible_fourths = set.intersection(set((pairs_df[pairs_df['name'] == name]['matched'].values[0])), set(pairs_df[pairs_df['name'] == student]['matched'].values[0]), set(row['matched']))
-                    if bool(possible_fourths):
-                        for name2 in possible_fourths:
-                            sgroup4 = frozenset([row['name'], student, name, name2])
-                            if sgroup4 not in seen and not seen.add(sgroup4):
-                                sgroups4.append(sgroup4)
-                    else:
-                        sgroups3.append(sgroup)
-    sgroups3.extend(sgroups4)
-    return [list(x) for x in sgroups3]
+    try:
+        sgroups3 = []
+        sgroups4 = []
+        seen = set()
+        output_df = pd.DataFrame({'names': pairs_df['username']})
+        for ind, row in pairs_df.iterrows():
+            for student in row['pairs']: #all possible pairs... find if 3rd persn
+                possible_thirds = set(pairs_df[pairs_df['username'] == student]['pairs'].values[0]).intersection(row['pairs'])
+                for name in possible_thirds:
+                    sgroup = frozenset([row['username'], student, name])
+                    if sgroup not in seen and not seen.add(sgroup):
+                        possible_fourths = set.intersection(set((pairs_df[pairs_df['username'] == name]['pairs'].values[0])), set(pairs_df[pairs_df['username'] == student]['pairs'].values[0]), set(row['pairs']))
+                        if bool(possible_fourths):
+                            for name2 in possible_fourths:
+                                sgroup4 = frozenset([row['username'], student, name, name2])
+                                if sgroup4 not in seen and not seen.add(sgroup4):
+                                    sgroups4.append(sgroup4)
+                        else:
+                            sgroups3.append(sgroup)
+        sgroups3.extend(sgroups4)
+        return [list(x) for x in sgroups3]
+    except Error:
+        return []
