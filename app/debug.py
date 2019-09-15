@@ -22,6 +22,24 @@ def delete_db_row(username):
 
     c.execute(f'''DELETE from status_table WHERE username='{username}';''')
 
+    c.execute(f'''DELETE from auth_table WHERE username='{username}';''')
+
+    c.execute(f'''DELETE from data_table WHERE username='{username}';''')
+
+    conn.commit()
+    conn.close()
+
+
+def delete_db_rows():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+
+    c.execute(f'''DELETE from status_table;''')
+
+    c.execute(f'''DELETE from auth_table;''')
+
+    c.execute(f'''DELETE from data_table;''')
+
     conn.commit()
     conn.close()
 
