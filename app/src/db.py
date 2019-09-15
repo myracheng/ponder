@@ -77,6 +77,7 @@ def update_nos(user, new_no):
     nosjson = json.dumps(nos)
     sql_query = f'''UPDATE status_table SET nos='{nosjson}' WHERE username='{user}';'''
     c.execute(sql_query)
+    print("after nos")
     conn.commit()
     conn.close()
 
@@ -89,6 +90,7 @@ def update_yes(user, new_yes):
     yeejson = json.dumps(yes)
     sql_query = f'''UPDATE status_table SET swipe_to='{yeejson}' WHERE username='{user}';'''
     c.execute(sql_query)
+    print("after  yes")
     conn.commit()
     conn.close()
 
@@ -97,39 +99,34 @@ def get_suggestions(username):
     con = sqlite3.connect('ponder.db')
     c = con.cursor()
     df = pd.read_sql_query('''SELECT * from data_table;''', con)
-    try: 
-        nos = json.loads(c.execute('''SELECT nos from status_table WHERE username = (?);''',str(username)).fetchone())
-    except:
-        nos = []
-    try:
-        swipe_to = json.loads(c.execute('''SELECT swipe_to from status_table WHERE username = (?);''',str(username)).fetchone())
-    except:
-        swipe_to = []
+    # try: 
+    nos = json.loads(c.execute('''SELECT nos from status_table WHERE username = (?);''',str(username)).fetchone()[0])
+    # except:
+        # nos = []
+    # try:
+    swipe_to = json.loads(c.execute('''SELECT swipe_to from status_table WHERE username = (?);''',str(username)).fetchone()[0])
+    # except:
+        # swipe_to = []
 
     suggestions = get_suggestions_from_df(df, username)
     sql_query = f'''SELECT * from status_table WHERE username='{username}';'''
     status_info = pd.read_sql_query(sql_query, con)
+    print('''suggestions are!''')
     print(suggestions)
     # filter out people already rejected or accepted
     for name in suggestions:
         if name in nos or name in swipe_to:
-            suggestions.delete(name)
+            suggestions.remove(name)
     suggs = json.dumps(suggestions)
-    # print('''suggestions are!\''')
+    print('''suggestions are! after filtering''')
     print(suggs)
-    print(type(suggs))
+    # print(type(suggs))
 
-    print("UPDATE CWD IS " + str(os.getcwd()))
     # c.execute('''REPLACE into status_table VALUES (?,?,?,?,?,?)''', (username, suggs, status_info['swipe_to'][0],status_info['swiped_from'][0],status_info['nos'][0], status_info['pairs'][0]))
 
     sql_query = f'''UPDATE status_table SET suggestions='{suggs}' WHERE username='{username}';'''
-    print(sql_query)
     c.execute(sql_query)
 
-    print("NEW TABLE:")
-    df = pd.read_sql_query('''SELECT * from status_table;''', con)
-    suggestions = get_suggestions_from_df(df, username)
-    print(suggestions)
 
     con.commit()
     con.close()
@@ -208,29 +205,10 @@ def get_suggestions_from_df(df, username):
     print(df)
     output = df['username'].unique().tolist()
     print(output)
-    output.remove(username)
     return output
-    # suggestions = {}
-    # row1 = df[df['username'] == username]
-
-    # if (row1['noise'] == 0):
-    #     second_df = df[df['noise'] == 0]
-    # else:
-    #     second_df = df[df['noise'] != 0]
-    
-    # for ind2, row2 in second_df[second_df['collab'] == row1['collab']].iterrows():
-    #     if row1['classes'] == row2['classes']:
-    #         print(suggestions)
-    #         soft_dot1 = row1[['learn_style', 'env', 'noise']].values
-    #         soft_dot2 = row2[['learn_style', 'env', 'noise']].values
-    #         preferences = np.dot(soft_dot1, soft_dot2)
-    #         suggestions[row2['username']] = preferences
-    # print("suggestions r")
-    # print(suggestions)
-    # return [i[0] for i in sorted(suggestions.items())]
-
 
 def make_groups_from_df(pairs_df):
+
     # print(pairs_df)
     # return [['a', 'b', 'c']]
     # return [list(x) for x in pairs_df[0]['pairs']]
@@ -255,3 +233,5 @@ def make_groups_from_df(pairs_df):
                     sgroups3.append(sgroup)
         # sgroups3.extend(sgroups4)
         return [list(x) for x in sgroups3]
+    # except Error:
+    #     return []
